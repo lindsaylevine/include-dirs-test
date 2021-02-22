@@ -1,5 +1,5 @@
 diff --git a/node_modules/@netlify/plugin-nextjs/index.js b/node_modules/@netlify/plugin-nextjs/index.js
-index 9b2b707..9845d0b 100644
+index 9b2b707..b10cb9d 100644
 --- a/node_modules/@netlify/plugin-nextjs/index.js
 +++ b/node_modules/@netlify/plugin-nextjs/index.js
 @@ -3,31 +3,28 @@ const path = require('path')
@@ -39,7 +39,7 @@ index 9b2b707..9845d0b 100644
      const nextConfigPath = await findUp('next.config.js')
      if (nextConfigPath === undefined) {
        // Create the next config file with target set to serverless by default
-@@ -48,17 +45,46 @@ module.exports = {
+@@ -48,17 +45,35 @@ module.exports = {
      if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
        return
      }
@@ -53,17 +53,6 @@ index 9b2b707..9845d0b 100644
      // inside `onPreBuild`.
      const nextOnNetlify = require('next-on-netlify')
      nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
-+    const { PHASE_PRODUCTION_BUILD } = require('next/constants')
-+    const { default: loadConfig } = require('next/dist/next-server/server/config')
-+    const config = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'));
-+    for (const name in (config.functions || {})) {
-+      const includes = config.functions[name].includeDir;
-+      if (fs.lstatSync(includes).isDirectory()) {
-+        await cpy('_content', `${FUNCTIONS_SRC}/next_slug/_content`);
-+      }
-+//     const markdown = await findUp('test.md')
-+//     await pCopyFile(markdown, `${FUNCTIONS_SRC}/next_slug/test.md`)
-+    }
    },
 -}
 +  async onPostBuild({ constants }) {
@@ -75,10 +64,10 @@ index 9b2b707..9845d0b 100644
 +      console.log("Processing includeFiles for ", name, includes)
 +      const zipName = path.join(constants.FUNCTIONS_DIST, getNetlifyFunctionName(name) + ".zip")
 +      console.log({ constants: JSON.stringify(constants)})
-+
+ 
 +      const { stdout } = await execa('ls', [constants.FUNCTIONS_DIST]);
 +      console.log({ stdout })
-       
++      
 +      console.log("Opening zipped function", zipName)
 +      const zip = new AdmZip(zipName)
 +      if (fs.lstatSync(includes).isDirectory()) {
