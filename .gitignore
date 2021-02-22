@@ -5,3 +5,4 @@ out_functions
 out_publish
 node_modules/
 .next
+.DS_Store
