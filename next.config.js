@@ -14,11 +14,16 @@ module.exports = {
     defaultLocale: "en",
   },
   target: "serverless",
-  webpack: (config, options) => {
-    config.module.rules.push({
-      test: /\.md/,
-      use: 'raw-loader'
-    })
-    return config
+  // webpack: (config, options) => {
+  //   config.module.rules.push({
+  //     test: /\.md/,
+  //     use: 'raw-loader'
+  //   })
+  //   return config
+  // },
+  functions: {
+    "pages/[[...slug]].js": {
+      includeDir: "./_content"
+    }
   }
 };

@@ -25,7 +25,6 @@ const Show = ({ show, content }) => {
 };
 
 export async function getStaticPaths() {
-  // const paths = 
   const paths = [{ params: { slug: ["test"] }}, { params: { slug: ["jason"] } }];
 
   return { paths, fallback: "blocking" };
@@ -35,10 +34,7 @@ export async function getStaticProps({ params }) {
   // The ID to render
   const { slug } = params;
 
-  console.log('WTF', __filename)
-
-  const fileName = slug && slug.length && slug.length > 0 ? slug[0] : 'something';
-  // const content = require(`../_content/${fileName}.md`).default
+  const fileName = slug && slug.length && slug.length > 0 ? slug[0] : 'test';
   const content = getContent(fileName);
 
   return {
