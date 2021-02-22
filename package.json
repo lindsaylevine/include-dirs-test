@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@netlify/plugin-nextjs": "^2.0.0",
@@ -16,6 +17,7 @@
     "glob": "^7.1.6",
     "netlify-cli": "^3.4.8",
     "next": "^10.0.6",
+    "patch-package": "^6.2.2",
     "raw-loader": "^4.0.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",

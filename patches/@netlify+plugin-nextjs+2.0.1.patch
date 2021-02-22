@@ -1,0 +1,87 @@
+diff --git a/node_modules/@netlify/plugin-nextjs/index.js b/node_modules/@netlify/plugin-nextjs/index.js
+index 9b2b707..2bb3455 100644
+--- a/node_modules/@netlify/plugin-nextjs/index.js
++++ b/node_modules/@netlify/plugin-nextjs/index.js
+@@ -3,31 +3,27 @@ const path = require('path')
+ const util = require('util')
+ const makeDir = require('make-dir')
+ const findUp = require('find-up')
+-
++const getNetlifyFunctionName = require("next-on-netlify/lib/helpers/getNetlifyFunctionName")
++const cpy = require("cpy")
++const AdmZip = require('adm-zip');
+ const validateNextUsage = require('./helpers/validateNextUsage')
+ const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
+-
+ const pWriteFile = util.promisify(fs.writeFile)
+-
++const pCopyFile = util.promisify(fs.copyFile)
+ // * Helpful Plugin Context *
+ // - Between the prebuild and build steps, the project's build command is run
+ // - Between the build and postbuild steps, any functions are bundled
+-
+ module.exports = {
+   async onPreBuild({ netlifyConfig, packageJson, utils }) {
+     const { failBuild } = utils.build
+-
+     validateNextUsage(failBuild)
+-
+     const hasNoPackageJson = Object.keys(packageJson).length === 0
+     if (hasNoPackageJson) {
+       return failBuild('Could not find a package.json for this project')
+     }
+-
+     if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+       return
+     }
+-
+     const nextConfigPath = await findUp('next.config.js')
+     if (nextConfigPath === undefined) {
+       // Create the next config file with target set to serverless by default
+@@ -48,17 +44,41 @@ module.exports = {
+     if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
+       return
+     }
+-
+     console.log(`** Running Next on Netlify package **`)
+-
+     await makeDir(PUBLISH_DIR)
+-
+     // We cannot load `next-on-netlify` (which depends on `next`) at the
+     // top-level because we validate whether the site is using `next`
+     // inside `onPreBuild`.
+     const nextOnNetlify = require('next-on-netlify')
+     nextOnNetlify({ functionsDir: FUNCTIONS_SRC, publishDir: PUBLISH_DIR })
++    const { PHASE_PRODUCTION_BUILD } = require('next/constants')
++    const { default: loadConfig } = require('next/dist/next-server/server/config')
++    const config = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'));
++    for (const name in (config.functions || {})) {
++      const includes = config.functions[name].includeDir;
++      if (fs.lstatSync(includes).isDirectory()) {
++        await cpy('_content', `${FUNCTIONS_SRC}/next_slug/_content`);
++      }
++//     const markdown = await findUp('test.md')
++//     await pCopyFile(markdown, `${FUNCTIONS_SRC}/next_slug/test.md`)
++    }
+   },
++  async onPostBuild() {
++    const { PHASE_PRODUCTION_BUILD } = require('next/constants')
++    const { default: loadConfig } = require('next/dist/next-server/server/config')
++    const config = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'));
++    for (const name in (config.functions || {})) {
++      const includes = config.functions[name].includeDir;
++      console.log("Processing includeFiles for ", name, includes)
++      const zipName = path.join(process.cwd(), ".netlify/functions", getNetlifyFunctionName(name) + ".zip")
++      console.log("Opening zipped function", zipName)
++      const zip = new AdmZip(zipName)
++      if (fs.lstatSync(includes).isDirectory()) {
++        console.log({ includes })
++        zip.addLocalFolder(includes, includes);
++      }
++      zip.writeZip(zipName)
++    }
++  }
+ }
+-
+ const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
+\ No newline at end of file
