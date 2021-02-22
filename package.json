@@ -11,17 +11,9 @@
   "dependencies": {
     "@netlify/plugin-nextjs": "^2.0.0",
     "adm-zip": "^0.5.3",
-    "chokidar": "^3.5.0",
-    "execa": "^5.0.0",
-    "find-cache-dir": "^3.3.1",
-    "glob": "^7.1.6",
-    "netlify-cli": "^3.4.8",
     "next": "^10.0.6",
     "patch-package": "^6.2.2",
-    "raw-loader": "^4.0.2",
     "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "remark": "^13.0.0",
-    "remark-loader": "^3.0.0"
+    "react-dom": "16.13.1"
   }
 }

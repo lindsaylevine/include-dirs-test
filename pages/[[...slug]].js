@@ -1,8 +1,5 @@
-import path from 'path';
 import Link from 'next/link';
 import getContent from '../helpers/getContent';
-
-const dataRoot = path.resolve(__dirname, '_content');
 
 const Show = ({ fileName, content }) => {
   return (
