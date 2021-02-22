@@ -1,5 +1,5 @@
-import path from "path";
-import Link from "next/link";
+import path from 'path';
+import Link from 'next/link';
 import getContent from '../helpers/getContent';
 
 const dataRoot = path.resolve(__dirname, '_content');
@@ -25,14 +25,18 @@ const Show = ({ show, content }) => {
 };
 
 export async function getStaticPaths() {
-  const paths = [{ params: { slug: ["test"] }}, { params: { slug: ["jason"] } }];
+  const paths = [
+    { params: { slug: ['test'] } },
+    { params: { slug: ['jason'] } },
+  ];
 
-  return { paths, fallback: "blocking" };
+  return { paths, fallback: 'blocking' };
 }
 
-export async function getStaticProps({ params }) {
+export async function getStaticProps(context) {
   // The ID to render
-  const { slug } = params;
+  console.log({ context });
+  const { slug } = context.params;
 
   const fileName = slug && slug.length && slug.length > 0 ? slug[0] : 'test';
   const content = getContent(fileName);
@@ -40,9 +44,9 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       show: { id: 10, name: 'whatever' },
-      content
+      content,
     },
-    revalidate: 10
+    revalidate: 10,
   };
 }
 
