@@ -1,5 +1,5 @@
 diff --git a/node_modules/@netlify/plugin-nextjs/index.js b/node_modules/@netlify/plugin-nextjs/index.js
-index 9b2b707..b10cb9d 100644
+index 9b2b707..e15b622 100644
 --- a/node_modules/@netlify/plugin-nextjs/index.js
 +++ b/node_modules/@netlify/plugin-nextjs/index.js
 @@ -3,31 +3,28 @@ const path = require('path')
@@ -8,15 +8,14 @@ index 9b2b707..b10cb9d 100644
  const findUp = require('find-up')
 -
 +const getNetlifyFunctionName = require("next-on-netlify/lib/helpers/getNetlifyFunctionName")
-+const cpy = require("cpy")
 +const AdmZip = require('adm-zip');
  const validateNextUsage = require('./helpers/validateNextUsage')
  const doesNotNeedPlugin = require('./helpers/doesNotNeedPlugin')
 -
-+const execa = require('execa')
  const pWriteFile = util.promisify(fs.writeFile)
--
-+const pCopyFile = util.promisify(fs.copyFile)
+ 
++const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
++
  // * Helpful Plugin Context *
  // - Between the prebuild and build steps, the project's build command is run
  // - Between the build and postbuild steps, any functions are bundled
@@ -39,7 +38,7 @@ index 9b2b707..b10cb9d 100644
      const nextConfigPath = await findUp('next.config.js')
      if (nextConfigPath === undefined) {
        // Create the next config file with target set to serverless by default
-@@ -48,17 +45,35 @@ module.exports = {
+@@ -48,17 +45,36 @@ module.exports = {
      if (await doesNotNeedPlugin({ netlifyConfig, packageJson, utils })) {
        return
      }
@@ -56,27 +55,28 @@ index 9b2b707..b10cb9d 100644
    },
 -}
 +  async onPostBuild({ constants }) {
++    // loads the full Next config, including defaults
 +    const { PHASE_PRODUCTION_BUILD } = require('next/constants')
 +    const { default: loadConfig } = require('next/dist/next-server/server/config')
 +    const config = loadConfig(PHASE_PRODUCTION_BUILD, path.resolve('.'));
+     
+-const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
++    // any functions defined in the config need special handling
 +    for (const name in (config.functions || {})) {
 +      const includes = config.functions[name].includeDir;
++
 +      console.log("Processing includeFiles for ", name, includes)
++
 +      const zipName = path.join(constants.FUNCTIONS_DIST, getNetlifyFunctionName(name) + ".zip")
-+      console.log({ constants: JSON.stringify(constants)})
- 
-+      const { stdout } = await execa('ls', [constants.FUNCTIONS_DIST]);
-+      console.log({ stdout })
-+      
-+      console.log("Opening zipped function", zipName)
 +      const zip = new AdmZip(zipName)
 +      if (fs.lstatSync(includes).isDirectory()) {
-+        console.log({ includes })
++        // we add the files at the root of the ZIP because process.cwd()
++        // points to `/` in serverless functions
 +        zip.addLocalFolder(includes, includes);
++        console.log(`Added ${includes} to ${zipName}`);
 +      }
++
 +      zip.writeZip(zipName)
 +    }
 +  }
 +}
- const DEFAULT_FUNCTIONS_SRC = 'netlify/functions'
-\ No newline at end of file
