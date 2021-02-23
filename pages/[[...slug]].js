@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import getContent from '../helpers/getContent';
 
-const Show = ({ fileName, content }) => {
+const Show = ({ fileName, content, timestamp }) => {
   return (
     <>
       <h1>Demonstrating Dynamically Loaded Content From Disk</h1>
@@ -12,6 +12,8 @@ const Show = ({ fileName, content }) => {
       <pre>{content}</pre>
 
       <hr />
+
+      Timestamp: {timestamp}
 
       <Link href="/">
         <a>Go back home</a>
@@ -36,6 +38,7 @@ export async function getStaticProps(context) {
     props: {
       fileName,
       content,
+      timestamp: Date.now()
     },
     revalidate: 10,
   };
