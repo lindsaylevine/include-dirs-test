@@ -5,11 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "postinstall": "patch-package"
+    "start": "next start"
   },
   "dependencies": {
-    "@netlify/plugin-nextjs": "^2.0.0",
+    "@netlify/plugin-nextjs": "git://github.com/netlify/netlify-plugin-nextjs.git#unstable-include-dir",
     "adm-zip": "^0.5.3",
     "next": "^10.0.6",
     "patch-package": "^6.2.2",
