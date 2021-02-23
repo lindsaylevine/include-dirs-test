@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import getContent from '../helpers/getContent';
+import getContent, { getContentSlugs } from '../helpers/getContent';
 
 const Show = ({ fileName, content, timestamp }) => {
   return (
@@ -23,7 +23,11 @@ const Show = ({ fileName, content, timestamp }) => {
 };
 
 export async function getStaticPaths() {
-  const paths = [{ params: { slug: ['test'] } }, { params: { slug: ['two'] } }];
+  const slugs = getContentSlugs()
+
+  const paths = slugs.map((slug) => {
+    return { params: { slug: [slug.replace('.md', '')] } };
+  })
 
   return { paths, fallback: 'blocking' };
 }

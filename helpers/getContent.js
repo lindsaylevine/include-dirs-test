@@ -3,6 +3,10 @@ import path from 'path';
 
 const dataRoot = path.resolve(process.cwd(), '_content');
 
+export const getContentSlugs = () => {
+  return fs.readdirSync(dataRoot);
+};
+
 const getContent = (slug) => {
   let content = fs.readFileSync(`${dataRoot}/${slug}.md`, 'utf8');
 
