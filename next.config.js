@@ -12,7 +12,7 @@ module.exports = {
    */
   functions: {
     'pages/[[...slug]].js': {
-      includeDir: './_content',
+      includeDirs: ['./_content', './_other'],
     },
   },
 };
